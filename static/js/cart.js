@@ -15,7 +15,6 @@ for (let i = 0; i < update_button.length; i++) {
 
         }else{
             updateUserOrder(product_id, action)
-
         }
     })
 }
@@ -37,7 +36,7 @@ function updateUserOrder(product_id, action) {
     })
     .then((response)=>response.json())
     .then((responseData)=>{
-        location.reload()
-
+        console.log("res data:",responseData)
+        
     })
 }

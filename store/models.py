@@ -10,7 +10,7 @@ Product: Đại diện cho sản phẩm. Mô hình này chứa thông tin về t
 
 Order: Đại diện cho đơn hàng. Mô hình này liên kết với khách hàng thông qua khóa ngoại, lưu trữ ngày đặt hàng và trạng thái hoàn thành của đơn hàng.
 
-OrderItem: Đại diện cho các mặt hàng trong đơn hàng. Mô hình này liên kết với đơn hàng và sản phẩm thông qua khóa ngoại, lưu trữ số lượng sản phẩm được đặt mua trong đơn hàng.
+OrderItem: Đại diện cho các mặt hàng trong đơn hàng. Mô hình này liên kết với đơn hàng và sản phẩm thông qua khóa ngoại, lưu trữ số lượng của các loại sản phẩm được đặt mua trong đơn hàng.
 
 ShippingAddress: Đại diện cho địa chỉ giao hàng. Mô hình này liên kết với khách hàng và đơn hàng thông qua khóa ngoại, lưu trữ địa chỉ giao hàng và các chi tiết khác của địa chỉ.
 
@@ -72,6 +72,15 @@ class Order(models.Model):
         order_items = self.orderitem_set.all()
         total_quantity = sum([order_item.quantity for order_item in order_items])
         return total_quantity
+    
+    @property
+    def shipping(self):
+        shipping = False
+        order_items = self.orderitem_set.all()
+        for i in order_items:
+            if i.product.digital == False:
+                shipping = True
+        return shipping
     pass
 
 class OrderItem(models.Model):

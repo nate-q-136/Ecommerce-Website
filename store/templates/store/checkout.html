@@ -43,6 +43,7 @@
 			<br>
 			<div class="box-element hidden" id="payment-info">
 				<small>Paypal Options</small>
+				<button id='make-payment'>Make Payment</button>
 			</div>
 			
 		</div>
@@ -67,4 +68,29 @@
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		var shipping = '{{order.shipping}}';
+		if(shipping == 'False'){
+			document.getElementById('shipping-info').innerHTML=''
+		}
+
+		var form = document.getElementById('form');
+		form.addEventListener('submit',function(e){
+			/*Dòng này ngăn chặn hành vi mặc định của sự kiện "submit". Nó ngăn chặn trang web từ việc tải lại hoặc chuyển hướng
+			 khi biểu mẫu được gửi đi, cho phép bạn xử lý và kiểm soát các hành động sau khi biểu mẫu được gửi đi.*/
+			e.preventDefault();
+			console.log("form submitted")
+			document.getElementById('form-button').classList.add('hidden')
+			document.getElementById('payment-info').classList.remove('hidden')
+		})
+
+		function submitFormData(){
+			console.log("submitted")
+		}
+
+		var makePaymentButton = document.getElementById('make-payment')
+		makePaymentButton.addEventListener('click',function(e){
+			submitFormData();
+		})
+	</script>
 {% endblock content %}

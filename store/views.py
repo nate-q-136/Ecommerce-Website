@@ -17,7 +17,7 @@ def store(request):
         pass
     else:
         items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0}
+        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
         cart_items = order['get_all_quantity']
         
     product= Product.objects.all()
@@ -40,7 +40,7 @@ def cart(request):
         pass
     else:
         items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0}
+        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
         cart_items = order['get_all_quantity']
         pass
     context = {"items":items,'order':order, 'cart_items':cart_items}
@@ -58,7 +58,7 @@ def checkout(request):
         pass
     else:
         items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0}
+        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
         cart_items = order['get_all_quantity']
         pass
     context = {"items":items,'order':order,'cart_items':cart_items}

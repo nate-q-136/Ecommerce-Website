@@ -33,7 +33,7 @@ class Customer(models.Model):
     
 class Product(models.Model):
     name = models.CharField(max_length=255,null=True)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=7, decimal_places=2)
     # check if digital or physical, 
     # digital là tệp video, sách điện tử,pdf... thường dùng để download về máy
     # physical là quần áo, đồ điện tử,... cần được ship tới nơi cụ thể

@@ -3,22 +3,14 @@ from .models import *
 import requests
 from django.http import JsonResponse
 import json
+import datetime
+from django.views.decorators.csrf import csrf_exempt
+from .utils import cookieCart,cartData, guestOrder
 # Create your views here.
 # ------- Đổ dữ liệu vào các trang-------
 def store(request):
-    if request.user.is_authenticated:
-        
-        customer = request.user.customer
-        # get_or_create sẽ lỗi nếu có nhiều kết quả trả về, nó chỉ nên là 1 kq trả về
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        # gọi tới bảng OrderItem có foreign key nối với bảng Order để lấy tất cả OrderItem có cùng order_id
-        items = order.orderitem_set.all()
-        cart_items = order.get_all_quantity
-        pass
-    else:
-        items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
-        cart_items = order['get_all_quantity']
+    data = cartData(request)
+    cart_items = data['cart_items']
         
     product= Product.objects.all()
     print("product:",len(product))
@@ -28,44 +20,25 @@ def store(request):
     return render(request, 'store/store.html',context)
 
 def cart(request):
-    # check login chưa
-    if request.user.is_authenticated:
-        
-        customer = request.user.customer
-        # get_or_create sẽ lỗi nếu có nhiều kết quả trả về, nó chỉ nên là 1 kq trả về
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        # gọi tới bảng OrderItem có foreign key nối với bảng Order để lấy tất cả OrderItem có cùng order_id
-        items = order.orderitem_set.all()
-        cart_items = order.get_all_quantity
-        pass
-    else:
-        items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
-        cart_items = order['get_all_quantity']
-        pass
+    data = cartData(request)
+    items = data['items']
+    order = data['order']
+    cart_items = data['cart_items']
     context = {"items":items,'order':order, 'cart_items':cart_items}
     return render(request, 'store/cart.html',context)
 
 def checkout(request):
-    if request.user.is_authenticated:
-        
-        customer = request.user.customer
-        # get_or_create sẽ lỗi nếu có nhiều kết quả trả về, nó chỉ nên là 1 kq trả về
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
-        # gọi tới bảng OrderItem có foreign key nối với bảng Order để lấy tất cả OrderItem có cùng order_id
-        items = order.orderitem_set.all()
-        cart_items = order.get_all_quantity
-        pass
-    else:
-        items=[]
-        order = {'get_cart_total':0,'get_all_quantity':0, 'shipping':False}
-        cart_items = order['get_all_quantity']
-        pass
+    data = cartData(request)
+    items = data['items']
+    order = data['order']
+    cart_items = data['cart_items']
+    
     context = {"items":items,'order':order,'cart_items':cart_items}
     return render(request, 'store/checkout.html',context)
 
 
 #--------- API get,post,put,delete--------
+# @csrf_exempt
 def update_item(request):
     data= json.loads(request.body)
     product_id = data['productId']
@@ -88,3 +61,32 @@ def update_item(request):
         # order_item.save()
         
     return JsonResponse({"message":"item was added"},status= 200)
+
+# @csrf_exempt
+def processOrder(request):
+    transaction_id = datetime.datetime.now().timestamp()
+    data = json.loads(request.body)
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer,complete=False)
+        
+    else:
+        customer, order = guestOrder(request,data)
+        
+    total = float(data['form']['total'])
+    order.transaction_id = transaction_id
+    
+    if total == order.get_cart_total:
+        order.complete = True
+    order.save()
+    if order.shipping == True:
+        ShippingAddress.objects.create(
+            customer=customer,
+            order=order,
+            address=data['shipping']['address'],
+            city=data['shipping']['city'],
+            state=data['shipping']['state'],
+            zipcode=data['shipping']['zipcode']
+        )
+        
+    return JsonResponse({"message":"Payment completed"},status=200)

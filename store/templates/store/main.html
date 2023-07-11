@@ -10,7 +10,7 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
   <script type="text/javascript">
-    var user = '{{request.user}}';
+    var user = '{{request.user}}'
     function getToken(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {
@@ -26,7 +26,43 @@
       }
       return cookieValue;
   }
-  const csrftoken = getToken('csrftoken');
+  var csrftoken = getToken('csrftoken');
+  console.log("csrf_token:", csrftoken);
+
+  function getCookie(name){
+    // cookie là 1 chuỗi chứa các item theo key=value, ví dụ: "username=nhat123;login_status=True"
+    var cookieArr = document.cookie.split(";")
+    console.log("cookieArr: " + cookieArr)
+    // Loop through the array elements
+    for(var i=0; i<cookieArr.length; i++)
+    {
+        // lấy ra mảng [key, value]
+        var cookiePair = cookieArr[i].split("=");
+
+        // remove white space 
+        if (name ==cookiePair[0].trim())
+        {
+            // decode the cookie value and return
+            return decodeURIComponent(cookiePair[1])
+        }
+    }
+    // return null if not found
+    return null
+
+}
+
+var cart = JSON.parse(getCookie('cart'))
+
+// thêm cart vào cookie
+if(cart == undefined)
+{
+    cart = {};
+    console.log("Cart created:",cart)
+    document.cookie = 'cart=' + JSON.stringify(cart)+";domain=;path/"
+}
+console.log("csrf_token:", csrftoken);
+
+console.log("cart:",cart)
   </script>
 
 </head>
@@ -71,7 +107,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="{% static 'js/cart.js' %}">
+  <script type="text/javascript" src="{% static 'js/cart_2.js' %}"></script>
     
   </script>
 </body>
